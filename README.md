@@ -75,7 +75,7 @@ supabase/
 
 ## Notes & extension ideas
 
-- Currency is AUD by default — change in `src/utils/formatters.js`.
+- Currency is MYR (RM) by default — change in `src/utils/formatters.js`.
 - To invite a partner: add a `household_id` column, a `household_members` table, and broaden RLS to `household_id IN (SELECT household_id FROM household_members WHERE user_id = auth.uid())`.
 - Receipts: add a `receipt_url` column and use Supabase Storage.
 - Realtime: the `useExpenses` hook can be upgraded by adding `supabase.channel('expenses').on('postgres_changes', ...)`.

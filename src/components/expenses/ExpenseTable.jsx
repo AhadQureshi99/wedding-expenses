@@ -42,16 +42,18 @@ const ExpenseTable = ({ expenses, onEdit, onDelete, onTogglePaid }) => {
                   <td className="px-4 py-3 text-slate-600">{shareTypeLabel(e.share_type)}</td>
                   <td className="px-4 py-3 text-right font-medium tabular-nums">{formatMoney(e.my_share)}</td>
                   <td className="px-4 py-3 text-right tabular-nums">
-                    <button
-                      onClick={() => onTogglePaid(e)}
-                      className="inline-flex items-center gap-1.5 text-slate-700 hover:text-rose-700"
-                      title={paidFull ? 'Mark as not fully paid' : 'Mark as fully paid'}
-                    >
-                      {paidFull
-                        ? <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                        : <Circle className="h-4 w-4 text-slate-400" />}
-                      {formatMoney(e.paid_amount)}
-                    </button>
+                    <div className="inline-flex items-center gap-2">
+                      <button
+                        onClick={() => onTogglePaid(e)}
+                        className="text-slate-400 hover:text-rose-700"
+                        title={paidFull ? 'Mark as not fully paid' : 'Mark as fully paid'}
+                      >
+                        {paidFull
+                          ? <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                          : <Circle className="h-4 w-4" />}
+                      </button>
+                      <span className="text-slate-700">{formatMoney(e.paid_amount)}</span>
+                    </div>
                   </td>
                   <td className="px-4 py-3 text-center">
                     <Badge tone={statusTone[e.status]}>{e.status}</Badge>

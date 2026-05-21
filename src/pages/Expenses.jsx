@@ -50,11 +50,8 @@ const Expenses = () => {
   }
 
   const onTogglePaid = async (e) => {
-    const next = !e.is_fully_paid
-    await update(e.id, {
-      is_fully_paid: next,
-      paid_amount: next ? (e.my_share ?? e.paid_amount ?? 0) : e.paid_amount,
-    })
+    // Only flip the flag. paid_amount is preserved — edit it via the modal if you need to change it.
+    await update(e.id, { is_fully_paid: !e.is_fully_paid })
   }
 
   const onConfirmDelete = async () => {

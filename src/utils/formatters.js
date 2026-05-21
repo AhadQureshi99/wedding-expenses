@@ -1,12 +1,12 @@
-const CURRENCY = new Intl.NumberFormat('en-AU', {
+const CURRENCY = new Intl.NumberFormat('ms-MY', {
   style: 'currency',
-  currency: 'AUD',
+  currency: 'MYR',
   maximumFractionDigits: 0,
 })
 
-const CURRENCY_PRECISE = new Intl.NumberFormat('en-AU', {
+const CURRENCY_PRECISE = new Intl.NumberFormat('ms-MY', {
   style: 'currency',
-  currency: 'AUD',
+  currency: 'MYR',
   maximumFractionDigits: 2,
 })
 
@@ -17,7 +17,7 @@ export const formatMoney = (value, { precise = false } = {}) => {
 
 export const formatDate = (iso) => {
   if (!iso) return '—'
-  return new Date(iso).toLocaleDateString('en-AU', {
+  return new Date(iso).toLocaleDateString('en-MY', {
     day: '2-digit',
     month: 'short',
     year: 'numeric',

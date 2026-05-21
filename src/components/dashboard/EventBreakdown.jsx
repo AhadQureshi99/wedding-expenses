@@ -8,11 +8,18 @@ const EventBreakdown = ({ data }) => {
   return (
     <div className="card">
       <h3 className="mb-4 text-lg">Spend by event</h3>
-      <div className="h-72">
+      <div className="h-80">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={sorted} margin={{ top: 8, right: 8, left: 8, bottom: 8 }}>
+          <BarChart data={sorted} margin={{ top: 8, right: 8, left: 8, bottom: 40 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-            <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#64748b' }} />
+            <XAxis
+              dataKey="name"
+              interval={0}
+              tick={{ fontSize: 11, fill: '#64748b' }}
+              angle={-25}
+              textAnchor="end"
+              height={60}
+            />
             <YAxis tick={{ fontSize: 12, fill: '#64748b' }} tickFormatter={(v) => formatMoney(v)} width={80} />
             <Tooltip
               cursor={{ fill: 'rgba(244, 63, 94, 0.05)' }}

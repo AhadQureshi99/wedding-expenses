@@ -1,4 +1,5 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
+import { Download, Loader2 } from 'lucide-react'
 import { useExpenses } from '@/hooks/useExpenses'
 import {
   computeTotals,
@@ -11,14 +12,25 @@ import EventBreakdown from '@/components/dashboard/EventBreakdown'
 import CategoryBreakdown from '@/components/dashboard/CategoryBreakdown'
 import SplitCard from '@/components/dashboard/SplitCard'
 import Spinner from '@/components/ui/Spinner'
+import { SEED_EXPENSES } from '@/data/seedExpenses'
 
 const Dashboard = () => {
-  const { expenses, loading } = useExpenses()
+  const { expenses, loading, bulkInsert } = useExpenses()
+  const [importing, setImporting] = useState(false)
+  const [importError, setImportError] = useState(null)
 
-  const totals  = useMemo(() => computeTotals(expenses),       [expenses])
-  const events  = useMemo(() => groupByEvent(expenses),        [expenses])
-  const cats    = useMemo(() => groupByCategory(expenses),     [expenses])
-  const split   = useMemo(() => computePartnerShare(expenses), [expenses])
+  const totals = useMemo(() => computeTotals(expenses),       [expenses])
+  const events = useMemo(() => groupByEvent(expenses),        [expenses])
+  const cats   = useMemo(() => groupByCategory(expenses),     [expenses])
+  const split  = useMemo(() => computePartnerShare(expenses), [expenses])
+
+  const importStarterData = async () => {
+    setImporting(true)
+    setImportError(null)
+    const { error } = await bulkInsert(SEED_EXPENSES)
+    setImporting(false)
+    if (error) setImportError(error.message)
+  }
 
   if (loading) {
     return <div className="grid place-items-center py-24"><Spinner /></div>
@@ -26,11 +38,27 @@ const Dashboard = () => {
 
   if (expenses.length === 0) {
     return (
-      <div className="card text-center">
-        <h2 className="text-2xl">Welcome 🎉</h2>
-        <p className="mt-2 text-slate-600">
-          No expenses yet. Head to <a href="/expenses" className="text-rose-600 underline">Expenses</a> to add your first one.
-        </p>
+      <div className="mx-auto max-w-lg">
+        <div className="card text-center">
+          <h2 className="text-2xl">Welcome 🎉</h2>
+          <p className="mt-2 text-slate-600">
+            Import the wedding expenses from your spreadsheet, or start fresh.
+          </p>
+
+          <div className="mt-5 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            <button onClick={importStarterData} disabled={importing} className="btn-primary">
+              {importing
+                ? <Loader2 className="h-4 w-4 animate-spin" />
+                : <Download className="h-4 w-4" />}
+              Import starter data ({SEED_EXPENSES.length} rows)
+            </button>
+            <a href="/expenses" className="btn-secondary">Start blank</a>
+          </div>
+
+          {importError && (
+            <p className="mt-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{importError}</p>
+          )}
+        </div>
       </div>
     )
   }

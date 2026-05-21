@@ -58,5 +58,17 @@ export const useExpenses = () => {
     return {}
   }
 
-  return { expenses, loading, error, create, update, remove, refetch: fetchAll }
+  const bulkInsert = async (rows) => {
+    if (!user || !rows?.length) return { data: [] }
+    const payload = rows.map((r) => ({ ...r, user_id: user.id }))
+    const { data, error: err } = await supabase
+      .from('expenses')
+      .insert(payload)
+      .select()
+    if (err) return { error: err }
+    setExpenses((prev) => [...prev, ...(data ?? [])])
+    return { data }
+  }
+
+  return { expenses, loading, error, create, update, remove, bulkInsert, refetch: fetchAll }
 }

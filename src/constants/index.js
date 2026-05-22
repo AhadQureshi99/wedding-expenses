@@ -1,3 +1,7 @@
+// Name shown on the "view this person's expenses" button. Cosmetic only —
+// real access is gated by the PIN check on Supabase.
+export const ADMIN_NAME = 'Prabhdeep'
+
 export const EVENTS = [
   'Maiyaan',
   'Jaggo',

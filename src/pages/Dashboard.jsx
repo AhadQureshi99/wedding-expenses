@@ -15,7 +15,7 @@ import Spinner from '@/components/ui/Spinner'
 import { SEED_EXPENSES } from '@/data/seedExpenses'
 
 const Dashboard = () => {
-  const { expenses, loading, bulkInsert } = useExpenses()
+  const { expenses, loading, bulkInsert, readOnly } = useExpenses()
   const [importing, setImporting] = useState(false)
   const [importError, setImportError] = useState(null)
 
@@ -37,6 +37,14 @@ const Dashboard = () => {
   }
 
   if (expenses.length === 0) {
+    if (readOnly) {
+      return (
+        <div className="card text-center">
+          <h2 className="text-2xl">No expenses yet</h2>
+          <p className="mt-2 text-slate-600">This account hasn't added any expenses.</p>
+        </div>
+      )
+    }
     return (
       <div className="mx-auto max-w-lg">
         <div className="card text-center">

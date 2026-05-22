@@ -26,6 +26,20 @@ In the Supabase dashboard → **SQL Editor**:
 1. Run [`supabase/schema.sql`](supabase/schema.sql) — creates the `expenses` table, enums, RLS policies, and `updated_at` trigger.
 2. (Optional, recommended) In **Authentication → Providers → Email**, turn **off** "Confirm email" while in development so you can log in immediately after signing up.
 
+### Optional: PIN-gated viewer mode
+
+To let others (e.g. your brother) sign up and read your expenses without being able to edit:
+
+1. Sign up the admin account in the app first.
+2. Open `supabase/admin_access.sql`, replace both placeholders:
+   - `REPLACE_WITH_ADMIN_EMAIL@example.com` → the admin's email
+   - `REPLACE_WITH_4_DIGIT_PIN` → any 4-digit PIN you want
+3. Run the file in the SQL Editor.
+4. Edit `src/constants/index.js` and set `ADMIN_NAME` to whatever should appear on the button.
+5. Anyone else who signs up now sees a **"View {ADMIN_NAME}'s"** button in the navbar — they enter the PIN and get a read-only view of your data. Writes are blocked both in the UI and at the database (RLS).
+
+To change the PIN later, just re-run the SQL with a new value.
+
 ## 3. Run
 
 ```bash
@@ -76,6 +90,7 @@ supabase/
 ## Notes & extension ideas
 
 - Currency is MYR (RM) by default — change in `src/utils/formatters.js`.
+- **Excel import/export** is on the Expenses page (`Import` / `Export` buttons). The `@e965/xlsx` library is lazy-loaded so it doesn't slow down the rest of the app. Import recognises columns from the original Excel: `Event, Category, Supplier, Total (Actual), Share, My Share, Total Paid, Status, Notes`.
 - To invite a partner: add a `household_id` column, a `household_members` table, and broaden RLS to `household_id IN (SELECT household_id FROM household_members WHERE user_id = auth.uid())`.
 - Receipts: add a `receipt_url` column and use Supabase Storage.
 - Realtime: the `useExpenses` hook can be upgraded by adding `supabase.channel('expenses').on('postgres_changes', ...)`.

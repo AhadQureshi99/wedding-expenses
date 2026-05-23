@@ -2,6 +2,12 @@
 // real access is gated by the PIN check on Supabase.
 export const ADMIN_NAME = 'Prabhdeep'
 
+// Email of the account allowed to add / edit / import expenses.
+// Everyone else who signs up gets a read-only view (they still need the
+// PIN to see the admin's data). Compared case-insensitively against
+// `auth.uid()`'s email.
+export const ADMIN_EMAIL = 'prabhdeep_singh95@yahoo.com'
+
 export const EVENTS = [
   'Maiyaan',
   'Jaggo',

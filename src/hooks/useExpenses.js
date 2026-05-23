@@ -6,8 +6,9 @@ import { useViewer } from '@/context/ViewerContext'
 const READ_ONLY = { error: { message: 'Viewer mode is read-only.' } }
 
 export const useExpenses = () => {
-  const { user } = useAuth()
+  const { user, isAdmin } = useAuth()
   const { viewerMode, pin } = useViewer()
+  const writeBlocked = viewerMode || !isAdmin
   const [expenses, setExpenses] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -35,7 +36,7 @@ export const useExpenses = () => {
   useEffect(() => { fetchAll() }, [fetchAll])
 
   const create = async (payload) => {
-    if (viewerMode) return READ_ONLY
+    if (writeBlocked) return READ_ONLY
     const row = { ...payload, user_id: user.id }
     const { data, error: err } = await supabase.from('expenses').insert(row).select().single()
     if (err) return { error: err }
@@ -44,7 +45,7 @@ export const useExpenses = () => {
   }
 
   const update = async (id, patch) => {
-    if (viewerMode) return READ_ONLY
+    if (writeBlocked) return READ_ONLY
     const { data, error: err } = await supabase
       .from('expenses')
       .update(patch)
@@ -57,7 +58,7 @@ export const useExpenses = () => {
   }
 
   const remove = async (id) => {
-    if (viewerMode) return READ_ONLY
+    if (writeBlocked) return READ_ONLY
     const { error: err } = await supabase.from('expenses').delete().eq('id', id)
     if (err) return { error: err }
     setExpenses((prev) => prev.filter((e) => e.id !== id))
@@ -65,7 +66,7 @@ export const useExpenses = () => {
   }
 
   const bulkInsert = async (rows) => {
-    if (viewerMode) return READ_ONLY
+    if (writeBlocked) return READ_ONLY
     if (!user || !rows?.length) return { data: [] }
     const payload = rows.map((r) => ({ ...r, user_id: user.id }))
     const { data, error: err } = await supabase.from('expenses').insert(payload).select()
@@ -79,7 +80,7 @@ export const useExpenses = () => {
    * inserts the new batch first, then deletes the previous IDs only on success.
    */
   const replaceAll = async (rows) => {
-    if (viewerMode) return READ_ONLY
+    if (writeBlocked) return READ_ONLY
     if (!user) return { error: { message: 'Not signed in.' } }
 
     const oldIds = expenses.map((e) => e.id)
@@ -104,7 +105,7 @@ export const useExpenses = () => {
     expenses,
     loading,
     error,
-    readOnly: viewerMode,
+    readOnly: writeBlocked,
     create,
     update,
     remove,

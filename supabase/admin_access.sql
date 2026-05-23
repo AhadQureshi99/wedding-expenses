@@ -4,7 +4,10 @@
 -- Edit the two REPLACE_WITH_ placeholders below before running.
 -- =====================================================================
 
-create extension if not exists pgcrypto;
+-- pgcrypto on Supabase lives in the `extensions` schema. The line below is
+-- a no-op if Supabase already pre-installed it (typical) — and if it isn't,
+-- this creates it in the right place.
+create extension if not exists pgcrypto with schema extensions;
 
 -- ------ admin_config (single-row, RLS-locked) ---------------------------
 create table if not exists public.admin_config (
@@ -25,7 +28,7 @@ insert into public.admin_config (id, admin_user_id, pin_hash, updated_at)
 select
   1,
   (select id from auth.users where email = 'REPLACE_WITH_ADMIN_EMAIL@example.com' limit 1),
-  crypt('REPLACE_WITH_4_DIGIT_PIN', gen_salt('bf')),
+  extensions.crypt('REPLACE_WITH_4_DIGIT_PIN', extensions.gen_salt('bf')),
   now()
 on conflict (id) do update
   set admin_user_id = excluded.admin_user_id,
@@ -46,7 +49,7 @@ create or replace function public.view_admin_expenses(p_pin text)
 returns setof public.expenses
 language plpgsql
 security definer
-set search_path = public, pg_temp
+set search_path = public, extensions, pg_temp
 as $$
 declare
   cfg record;
@@ -60,7 +63,7 @@ begin
     raise exception 'admin not configured';
   end if;
 
-  if crypt(p_pin, cfg.pin_hash) <> cfg.pin_hash then
+  if extensions.crypt(p_pin, cfg.pin_hash) <> cfg.pin_hash then
     raise exception 'invalid pin' using errcode = '28000';
   end if;
 

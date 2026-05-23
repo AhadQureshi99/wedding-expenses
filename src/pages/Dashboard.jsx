@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react'
-import { Download, Loader2 } from 'lucide-react'
+import { Download, Loader2, Eye } from 'lucide-react'
 import { useExpenses } from '@/hooks/useExpenses'
+import { useAuth } from '@/context/AuthContext'
+import { useViewer } from '@/context/ViewerContext'
 import {
   computeTotals,
   groupByEvent,
@@ -13,9 +15,12 @@ import CategoryBreakdown from '@/components/dashboard/CategoryBreakdown'
 import SplitCard from '@/components/dashboard/SplitCard'
 import Spinner from '@/components/ui/Spinner'
 import { SEED_EXPENSES } from '@/data/seedExpenses'
+import { ADMIN_NAME } from '@/constants'
 
 const Dashboard = () => {
-  const { expenses, loading, bulkInsert, readOnly } = useExpenses()
+  const { expenses, loading, bulkInsert } = useExpenses()
+  const { isAdmin } = useAuth()
+  const { viewerMode } = useViewer()
   const [importing, setImporting] = useState(false)
   const [importError, setImportError] = useState(null)
 
@@ -37,14 +42,36 @@ const Dashboard = () => {
   }
 
   if (expenses.length === 0) {
-    if (readOnly) {
+    // Already in viewer mode but admin's account is empty
+    if (viewerMode) {
       return (
         <div className="card text-center">
           <h2 className="text-2xl">No expenses yet</h2>
-          <p className="mt-2 text-slate-600">This account hasn't added any expenses.</p>
+          <p className="mt-2 text-slate-600">{ADMIN_NAME} hasn't added any expenses yet.</p>
         </div>
       )
     }
+
+    // Signed-in non-admin — gently point them at the PIN viewer
+    if (!isAdmin) {
+      return (
+        <div className="mx-auto max-w-lg">
+          <div className="card text-center">
+            <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-rose-50">
+              <Eye className="h-5 w-5 text-rose-600" />
+            </div>
+            <h2 className="mt-3 text-2xl">{ADMIN_NAME}'s wedding tracker</h2>
+            <p className="mt-2 text-slate-600">
+              This is a private expense tracker. Use the{' '}
+              <span className="font-semibold">View {ADMIN_NAME}'s</span> button at the top
+              and enter the 4-digit PIN to see the expenses.
+            </p>
+          </div>
+        </div>
+      )
+    }
+
+    // Admin, empty — offer to seed
     return (
       <div className="mx-auto max-w-lg">
         <div className="card text-center">

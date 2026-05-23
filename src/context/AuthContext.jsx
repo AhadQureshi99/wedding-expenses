@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { ADMIN_EMAIL } from '@/constants'
 
 const AuthContext = createContext(null)
 
@@ -20,9 +21,15 @@ export const AuthProvider = ({ children }) => {
     return () => sub.subscription.unsubscribe()
   }, [])
 
+  const user = session?.user ?? null
+  const isAdmin =
+    !!user?.email &&
+    user.email.trim().toLowerCase() === ADMIN_EMAIL.trim().toLowerCase()
+
   const value = {
     session,
-    user: session?.user ?? null,
+    user,
+    isAdmin,
     loading,
     signIn:    (email, password) => supabase.auth.signInWithPassword({ email, password }),
     signUp:    (email, password) => supabase.auth.signUp({ email, password }),

@@ -1,10 +1,13 @@
 import { useState } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
-import { Heart, Loader2 } from 'lucide-react'
+import { Heart, Loader2, Eye } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
+import { useViewer } from '@/context/ViewerContext'
+import { ADMIN_NAME } from '@/constants'
 
 const Login = () => {
-  const { session, signIn, signUp } = useAuth()
+  const { session, signIn, signUp, signInAnon } = useAuth()
+  const { openPinModal } = useViewer()
   const location = useLocation()
   const [mode, setMode] = useState('sign_in')
   const [email, setEmail] = useState('')
@@ -12,6 +15,7 @@ const Login = () => {
   const [error, setError] = useState(null)
   const [info, setInfo] = useState(null)
   const [busy, setBusy] = useState(false)
+  const [guestBusy, setGuestBusy] = useState(false)
 
   if (session) {
     const to = location.state?.from?.pathname ?? '/'
@@ -33,6 +37,21 @@ const Login = () => {
     if (mode === 'sign_up') {
       setInfo('Account created. Check your inbox to confirm — or log in if confirmation is disabled.')
     }
+  }
+
+  const onGuest = async () => {
+    setError(null)
+    setInfo(null)
+    setGuestBusy(true)
+    const { error: err } = await signInAnon()
+    setGuestBusy(false)
+    if (err) {
+      // Most common cause: "Anonymous sign-ins are disabled" — surface clearly.
+      setError(err.message || 'Could not start guest session.')
+      return
+    }
+    // Pre-open the PIN modal so it's ready when AppShell mounts after redirect.
+    openPinModal()
   }
 
   return (
@@ -87,6 +106,27 @@ const Login = () => {
             {mode === 'sign_in' ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
           </button>
         </form>
+
+        <div className="my-4 flex items-center gap-3 text-xs uppercase tracking-wider text-slate-400">
+          <span className="h-px flex-1 bg-slate-200" />
+          <span>or</span>
+          <span className="h-px flex-1 bg-slate-200" />
+        </div>
+
+        <button
+          type="button"
+          onClick={onGuest}
+          disabled={guestBusy}
+          className="btn-secondary w-full"
+        >
+          {guestBusy
+            ? <Loader2 className="h-4 w-4 animate-spin" />
+            : <Eye className="h-4 w-4" />}
+          Continue as guest
+        </button>
+        <p className="mt-2 text-center text-xs text-slate-500">
+          You'll be asked for {ADMIN_NAME}'s 4-digit PIN. View-only access.
+        </p>
       </div>
     </div>
   )

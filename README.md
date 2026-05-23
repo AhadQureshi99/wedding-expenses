@@ -25,6 +25,7 @@ In the Supabase dashboard → **SQL Editor**:
 
 1. Run [`supabase/schema.sql`](supabase/schema.sql) — creates the `expenses` table, enums, RLS policies, and `updated_at` trigger.
 2. (Optional, recommended) In **Authentication → Providers → Email**, turn **off** "Confirm email" while in development so you can log in immediately after signing up.
+3. To enable **Continue as guest** on the login page: in **Authentication → Sign In / Up → Anonymous Sign-Ins**, turn it on. Guests then click the button → instant anonymous session → PIN prompt → read-only view of the admin's data.
 
 ### Optional: PIN-gated viewer mode
 

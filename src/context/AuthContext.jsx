@@ -25,14 +25,18 @@ export const AuthProvider = ({ children }) => {
   const isAdmin =
     !!user?.email &&
     user.email.trim().toLowerCase() === ADMIN_EMAIL.trim().toLowerCase()
+  // Supabase sets `is_anonymous: true` on users created via signInAnonymously.
+  const isGuest = !!user && (user.is_anonymous === true || !user.email)
 
   const value = {
     session,
     user,
     isAdmin,
+    isGuest,
     loading,
     signIn:    (email, password) => supabase.auth.signInWithPassword({ email, password }),
     signUp:    (email, password) => supabase.auth.signUp({ email, password }),
+    signInAnon: () => supabase.auth.signInAnonymously(),
     signOut:   () => supabase.auth.signOut(),
   }
 

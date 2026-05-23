@@ -9,7 +9,8 @@ const navItems = [
 ]
 
 const Navbar = () => {
-  const { user, signOut } = useAuth()
+  const { user, signOut, isGuest } = useAuth()
+  const identityLabel = isGuest ? 'Guest' : user?.email
 
   return (
     <header className="sticky top-0 z-30 border-b border-slate-200/70 bg-white/80 backdrop-blur">
@@ -39,7 +40,7 @@ const Navbar = () => {
 
         <div className="flex items-center gap-2">
           <ViewerSwitch />
-          <span className="hidden text-xs text-slate-500 sm:inline">{user?.email}</span>
+          <span className="hidden text-xs text-slate-500 sm:inline">{identityLabel}</span>
           <button onClick={signOut} className="btn-ghost px-2 py-1.5" title="Sign out">
             <LogOut className="h-4 w-4" />
           </button>

@@ -6,6 +6,8 @@ const ViewerContext = createContext(null)
 export const ViewerProvider = ({ children }) => {
   // PIN is kept in memory only — closing the tab clears viewer mode.
   const [pin, setPin] = useState(null)
+  // PIN modal is rendered globally in <AppShell>; anyone can open it.
+  const [pinModalOpen, setPinModalOpen] = useState(false)
 
   const enter = useCallback(async (candidatePin) => {
     const { data, error } = await supabase.rpc('view_admin_expenses', { p_pin: candidatePin })
@@ -16,11 +18,17 @@ export const ViewerProvider = ({ children }) => {
 
   const exit = useCallback(() => setPin(null), [])
 
+  const openPinModal  = useCallback(() => setPinModalOpen(true),  [])
+  const closePinModal = useCallback(() => setPinModalOpen(false), [])
+
   const value = {
     viewerMode: pin !== null,
     pin,
     enter,
     exit,
+    pinModalOpen,
+    openPinModal,
+    closePinModal,
   }
 
   return <ViewerContext.Provider value={value}>{children}</ViewerContext.Provider>
